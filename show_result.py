@@ -15,15 +15,27 @@ def read_txt(path):
 save_path = "./save_process"
 # model = 'llava-v1.5-13b'
 # model = 'llama-3-8b-instruct'
-model = "gpt-3.5-turbo-0125"
+model = "gpt-3.5-turbo"
 # model = 'gpt-4o-2024-05-13'
 
 
 
+# results = []
+# with open(os.path.join(save_path, model, "results.json"), "r") as f:
+#     for line in f:
+#         results += eval(line.strip())
 results = []
-with open(os.path.join(save_path, model, "results.json"), "r") as f:
-    for line in f:
-        results += eval(line.strip())
+model_path = os.path.join(save_path, model)
+
+for fname in os.listdir(model_path):
+    if fname.endswith(".json") and fname != "results.json":
+        with open(os.path.join(model_path, fname), "r") as f:
+            for line in f:
+                try:
+                    results.append(eval(line.strip()))
+                except:
+                    pass  # Skip badly formatted lines if any
+
 
 costs = []
 time_cost = []
@@ -41,12 +53,10 @@ for sample in tqdm(samples):
                 time_cost.append(pre['time'])
     id += 1
 
-
-
-
 results_c = []
 for i, result in enumerate(results):
-    if "true" in result.lower():
+    # if "true" in result.lower():
+    if "response" in result and "true" in result["response"].lower():
         results_c.append(True)
     else:
         results_c.append(False)
